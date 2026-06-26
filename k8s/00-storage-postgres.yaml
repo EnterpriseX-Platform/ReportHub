@@ -1,0 +1,55 @@
+# Dedicated PostgreSQL for Report Studio (reportstudio). NFS-backed PVC (05-persistent-volumes.yaml) = durable: data resets if the pod
+# restarts, but the app's Flyway migrations re-create + reseed automatically, so SIT self-heals.
+# For persistence: replace the emptyDir volume with a PVC bound to a statically-provisioned PV
+# (this cluster has no dynamic StorageClass — mirror bbdoc-postgres-pv).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportstudio-postgres
+  namespace: reportstudio
+  labels: { app: reportstudio-postgres }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: reportstudio-postgres }
+  template:
+    metadata:
+      labels: { app: reportstudio-postgres }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: reportstudio
+            - name: POSTGRES_USER
+              valueFrom: { secretKeyRef: { name: reportstudio-secret, key: DB_USER } }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: reportstudio-secret, key: DB_PASSWORD } }
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "reportstudio", "-d", "reportstudio"] }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { memory: "256Mi", cpu: "100m" }
+            limits:   { memory: "1Gi",   cpu: "500m" }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: reportstudio-postgres-pvc }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportstudio-postgres
+  namespace: reportstudio
+spec:
+  selector: { app: reportstudio-postgres }
+  ports:
+    - { protocol: TCP, port: 5432, targetPort: 5432 }
+  type: ClusterIP

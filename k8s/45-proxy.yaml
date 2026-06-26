@@ -1,0 +1,92 @@
+# Self-contained edge proxy for Report Studio.
+#
+# The cluster's shared ingress controller is nginx.org/ingress-controller, which does
+# NOT serve host-less ingress rules on its default server (only host-routed servers like
+# oneweb.example work, and those belong to other apps). To give Report Studio a single
+# same-origin entry point — without hijacking a production host — this tiny nginx fronts:
+#   /reportstudio       -> reportstudio-app  (Next.js, basePath /reportstudio)
+#   /reportstudio/api   -> reportstudio-api  (Spring Boot, context-path /reportstudio/api)
+# exposed via its own NodePort so it is reachable at http://<nodeIP>:<nodePort>/reportstudio.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reportstudio-proxy-conf
+  namespace: reportstudio
+data:
+  nginx.conf: |
+    worker_processes 1;
+    events { worker_connections 1024; }
+    http {
+      access_log /dev/stdout;
+      error_log  /dev/stderr;
+      sendfile on;
+      client_max_body_size 50m;
+      proxy_read_timeout 120s;
+      proxy_http_version 1.1;
+      server {
+        listen 8080;
+        # Backend API first — longest-prefix match means /reportstudio/api wins over /reportstudio.
+        location /reportstudio/api {
+          proxy_pass http://reportstudio-api.reportstudio.svc.cluster.local:8080;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        location /reportstudio {
+          proxy_pass http://reportstudio-app.reportstudio.svc.cluster.local:3000;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        location = / { return 302 /reportstudio; }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportstudio-proxy
+  namespace: reportstudio
+  labels: { app: reportstudio-proxy }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: reportstudio-proxy }
+  template:
+    metadata:
+      labels: { app: reportstudio-proxy }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          readinessProbe:
+            httpGet: { path: /reportstudio, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { memory: "32Mi", cpu: "20m" }
+            limits:   { memory: "128Mi", cpu: "200m" }
+      volumes:
+        - name: conf
+          configMap:
+            name: reportstudio-proxy-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportstudio-proxy
+  namespace: reportstudio
+  labels: { app: reportstudio-proxy }
+spec:
+  type: NodePort
+  selector: { app: reportstudio-proxy }
+  ports:
+    - { name: http, protocol: TCP, port: 8080, targetPort: 8080, nodePort: 30739 }

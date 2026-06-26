@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportstudio-api
+  namespace: reportstudio
+  labels: { app: reportstudio-api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: reportstudio-api }
+  template:
+    metadata:
+      labels: { app: reportstudio-api }
+    spec:
+      imagePullSecrets:
+        - name: component-docker
+      containers:
+        - name: reportstudio-api
+          # :placeholder — the deploy job swaps the tag via `kubectl set image`.
+          image: avalantoneweb/reportstudio-api:placeholder
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_PROFILE
+              value: "sit"
+          envFrom:
+            - secretRef: { name: reportstudio-secret }
+          readinessProbe:
+            httpGet: { path: /reportstudio/api/actuator/health, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          # In-process Jasper renders peg the CPU; the default timeoutSeconds=1 /
+          # failureThreshold=3 made the health check time out mid-render, so the
+          # kubelet SIGKILLed the pod (exit 137) and the job requeued forever
+          # (395 restarts on 2026-06-15). Relaxed timeout + more tolerance + 2 CPUs
+          # let a render finish without tripping liveness.
+          livenessProbe:
+            httpGet: { path: /reportstudio/api/actuator/health, port: 8080 }
+            initialDelaySeconds: 75
+            periodSeconds: 20
+            timeoutSeconds: 8
+            failureThreshold: 5
+          resources:
+            requests: { memory: "1Gi", cpu: "500m" }
+            limits:   { memory: "4Gi", cpu: "2000m" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportstudio-api
+  namespace: reportstudio
+spec:
+  selector: { app: reportstudio-api }
+  ports:
+    - { protocol: TCP, port: 8080, targetPort: 8080 }
+  type: ClusterIP

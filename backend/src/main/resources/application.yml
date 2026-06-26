@@ -1,0 +1,82 @@
+server:
+  port: 8080
+  error:
+    include-message: always    # surface BadRequestException reasons to the UI toasts
+  servlet:
+    # Local dev = /api · SIT/prod sets CONTEXT_PATH=/report-studio/api (served under the app basename)
+    context-path: ${CONTEXT_PATH:/api}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 30MB
+  application:
+    name: report-studio
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/reportstudio}
+    username: ${DB_USER:reportstudio}
+    password: ${DB_PASSWORD:reportstudio}
+    hikari:
+      maximum-pool-size: 10
+      pool-name: report-studio-pool
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: report-studio
+      auto-offset-reset: earliest
+    listener:
+      missing-topics-fatal: false
+
+# Object storage (MinIO, S3 compatible) for report outputs.
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9100}
+  access-key: ${MINIO_ACCESS_KEY:reportstudio}
+  secret-key: ${MINIO_SECRET_KEY:reportstudio}
+  bucket: ${MINIO_BUCKET:report-outputs}
+
+# CORS origins for the Next.js frontend (comma-separated, matched as patterns).
+# Default "*" allows any origin — safe here because the API authenticates with Bearer
+# tokens (no cookies), and it lets the app work behind any host/IP (e.g. a NodePort test link).
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  jwt:
+    secret: ${JWT_SECRET:change-me-report-studio-dev-secret-please-rotate-32B+}
+    ttlMinutes: ${JWT_TTL_MINUTES:120}
+  # AES key for secrets at rest (remote-engine authToken). Set ENCRYPTION_KEY in prod.
+  encryption:
+    key: ${ENCRYPTION_KEY:change-me-report-studio-dev-encryption-key}
+  # Third-party engine JARs (ServiceLoader). Disable to refuse loading external code.
+  plugins:
+    enabled: ${PLUGINS_ENABLED:true}
+  report:
+    office-name: ${REPORT_OFFICE_NAME:Report Studio}
+    generated-at-pattern: ${REPORT_TS_PATTERN:dd/MM/yyyy HH:mm}
+    generated-at-locale: ${REPORT_TS_LOCALE:en}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    io.reporthub.reportstudio: INFO
+    io.reporthub.reportstudio.render: INFO
+    net.sf.jasperreports: WARN   # Jasper is chatty at INFO; keep it quiet

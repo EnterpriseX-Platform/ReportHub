@@ -1,0 +1,46 @@
+# Persistent storage on an NFS server (set <NFS_SERVER> + export path below).
+# Pre-bound via claimRef. Survives pod restarts and node moves,
+# so Postgres data (incl. dataset snapshots ds_cap_*) and MinIO objects are durable.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: reportstudio-postgres-pv
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  claimRef: { namespace: reportstudio, name: reportstudio-postgres-pvc }
+  nfs: { server: <NFS_SERVER>, path: /exports/reportstudio/postgres }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reportstudio-postgres-pvc
+  namespace: reportstudio
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 5Gi } }
+  storageClassName: ""
+  volumeName: reportstudio-postgres-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: reportstudio-minio-pv
+spec:
+  capacity: { storage: 10Gi }
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  claimRef: { namespace: reportstudio, name: reportstudio-minio-pvc }
+  nfs: { server: <NFS_SERVER>, path: /exports/reportstudio/minio }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reportstudio-minio-pvc
+  namespace: reportstudio
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 10Gi } }
+  storageClassName: ""
+  volumeName: reportstudio-minio-pv

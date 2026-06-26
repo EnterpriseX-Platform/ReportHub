@@ -1,0 +1,29 @@
+# --- vendored OneWeb component engine source ---
+# Lives in its own separate repository and embeds THIRD-PARTY credentials. Report Studio integrates
+# with it over HTTP (ComponentReportEngine) and does not need the source — never publish this copy.
+engines/oneweb-component/
+
+# --- secrets & credentials (never commit) ---
+*.kubeconfig
+kubeconfig*
+**/.secrets.generated.env
+secret.local.yaml
+*.local.yaml
+.env
+.env.*
+!.env.example
+
+# --- build / deps ---
+backend/target/
+frontend/.next/
+frontend/node_modules/
+node_modules/
+*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# --- os / editor ---
+.DS_Store
+*.log
+
+# local Claude Code overrides (personal)
+.claude/settings.local.json

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+
+    <fontFamily name="DilleniaUPC">
+        <normal>fonts/DilleniaUPC.ttf</normal>
+        <bold>fonts/DilleniaUPC Bold.ttf</bold>
+        <italic>fonts/DilleniaUPC Italic.ttf</italic>
+        <boldItalic>fonts/DilleniaUPC Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Baijam">
+        <normal>fonts/TH Baijam.ttf</normal>
+        <bold>fonts/TH Baijam Bold.ttf</bold>
+        <italic>fonts/TH Baijam Italic.ttf</italic>
+        <boldItalic>fonts/TH Baijam Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Chakra Petch">
+        <normal>fonts/TH Chakra Petch.ttf</normal>
+        <bold>fonts/TH Chakra Petch Bold.ttf</bold>
+        <italic>fonts/TH Chakra Petch Italic.ttf</italic>
+        <boldItalic>fonts/TH Chakra Petch Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Charm of AU">
+        <normal>fonts/TH Charm of AU.ttf</normal>
+        <bold>fonts/TH Charm of AU.ttf</bold>
+        <italic>fonts/TH Charm of AU.ttf</italic>
+        <boldItalic>fonts/TH Charm of AU.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Charmonman">
+        <normal>fonts/TH Charmonman.ttf</normal>
+        <bold>fonts/TH Charmonman Bold.ttf</bold>
+        <italic>fonts/TH Charmonman.ttf</italic>
+        <boldItalic>fonts/TH Charmonman Bold.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Fahkwang">
+        <normal>fonts/TH Fahkwang.ttf</normal>
+        <bold>fonts/TH Fahkwang Bold.ttf</bold>
+        <italic>fonts/TH Fahkwang Italic.ttf</italic>
+        <boldItalic>fonts/TH Fahkwang Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH K2D July8">
+        <normal>fonts/TH K2D July8.ttf</normal>
+        <bold>fonts/TH K2D July8 Bold.ttf</bold>
+        <italic>fonts/TH K2D July8 Italic.ttf</italic>
+        <boldItalic>fonts/TH K2D July8 Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH KoHo">
+        <normal>fonts/TH KoHo.ttf</normal>
+        <bold>fonts/TH KoHo Bold.ttf</bold>
+        <italic>fonts/TH KoHo Italic.ttf</italic>
+        <boldItalic>fonts/TH KoHo Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Kodchasal">
+        <normal>fonts/TH Kodchasal.ttf</normal>
+        <bold>fonts/TH Kodchasal Bold.ttf</bold>
+        <italic>fonts/TH Kodchasal Italic.ttf</italic>
+        <boldItalic>fonts/TH Kodchasal Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Krub">
+        <normal>fonts/TH Krub.ttf</normal>
+        <bold>fonts/TH Krub Bold.ttf</bold>
+        <italic>fonts/TH Krub Italic.ttf</italic>
+        <boldItalic>fonts/TH Krub Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Mali Grade6">
+        <normal>fonts/TH Mali Grade6.ttf</normal>
+        <bold>fonts/TH Mali Grade6 Bold.ttf</bold>
+        <italic>fonts/TH Mali Grade6 Italic.ttf</italic>
+        <boldItalic>fonts/TH Mali Grade6 Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH Niramit AS">
+        <normal>fonts/TH Niramit AS Bold.ttf</normal>
+        <bold>fonts/TH Niramit AS Bold.ttf</bold>
+        <italic>fonts/TH Niramit AS Italic.ttf</italic>
+        <boldItalic>fonts/TH Niramit AS Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="TH SarabunPSK">
+        <normal>fonts/TH SarabunPSK.ttf</normal>
+        <bold>fonts/TH SarabunPSK Bold.ttf</bold>
+        <italic>fonts/TH SarabunPSK Italic.ttf</italic>
+        <boldItalic>fonts/TH SarabunPSK Bold Italic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="THSarabunNew">
+        <normal>fonts/THSarabunNew/THSarabunNew.ttf</normal>
+        <bold>fonts/THSarabunNew/THSarabunNew Bold.ttf</bold>
+        <italic>fonts/THSarabunNew/THSarabunNew Italic.ttf</italic>
+        <boldItalic>fonts/THSarabunNew/THSarabunNew BoldItalic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="THSarabunIT">
+        <normal>fonts/THSarabunIT/THSarabunIT9.ttf</normal>
+        <bold>fonts/THSarabunIT/THSarabunIT9 Bold.ttf</bold>
+        <italic>fonts/THSarabunIT/THSarabunIT9 Italic.ttf</italic>
+        <boldItalic>fonts/THSarabunIT/THSarabunIT9 BoldItalic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+    <fontFamily name="Prompt">
+        <normal>fonts/Prompt/Prompt-Regular.ttf</normal>
+        <bold>fonts/Prompt/Prompt-Bold.ttf</bold>
+        <italic>fonts/Prompt/Prompt-Italic.ttf</italic>
+        <boldItalic>fonts/Prompt/Prompt-BoldItalic.ttf</boldItalic>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded>true</pdfEmbedded>
+    </fontFamily>
+
+</fontFamilies>

@@ -1,0 +1,28 @@
+# Mirrors the example-service ingress: nginx.org controller via the kubernetes.io/ingress.class annotation,
+# host-less, path-based. /reportstudio/api avoids colliding with other apps' /api.
+#   https://<host>/reportstudio        → reportstudio-app (Next.js basePath=/reportstudio, :3000)
+#   https://<host>/reportstudio/api/*   → reportstudio-api (Spring context-path=/reportstudio/api, :8080)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reportstudio-ingress
+  namespace: reportstudio
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /reportstudio/api
+            pathType: Prefix
+            backend:
+              service:
+                name: reportstudio-api
+                port: { number: 8080 }
+          - path: /reportstudio
+            pathType: Prefix
+            backend:
+              service:
+                name: reportstudio-app
+                port: { number: 3000 }

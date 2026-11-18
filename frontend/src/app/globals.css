@@ -1,0 +1,130 @@
+/* ReportHub — global base, layout and print rules that Carbon does not provide.
+   Components come from @carbon/react (styles in carbon.scss); app layout glue uses `rh-` classes in
+   carbon.scss. Only three kinds of rules live here: the document base, the pipeline flow diagram
+   (a custom canvas Carbon has no component for), and the paginated document pages (screen + print). */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+button, input, select, textarea, optgroup, pre, code, kbd, samp { font-family: inherit; }
+body {
+  font-family: var(--font-plex), var(--font-plex-thai), 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--cds-text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+
+/* scrollbars */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--cds-border-strong-01); border: 2px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--cds-icon-secondary); background-clip: content-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* page enter */
+.fade-in { animation: fadeUp .28s ease; }
+@keyframes fadeUp { from { transform: translateY(8px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
+
+/* ---------------------------------------------------------------------------
+   Pipeline flow diagram (Data Pipeline detail) + SQL pane fill
+   --------------------------------------------------------------------------- */
+.flow {
+  position: relative; overflow: auto; background: var(--cds-layer-accent-01);
+  background-image: radial-gradient(circle, var(--cds-border-strong-01) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.flow-inner { position: relative; margin: 0 auto; }
+.flow-svg { position: absolute; inset: 0; pointer-events: none; }
+
+.fnode {
+  position: absolute; width: 268px; background: var(--cds-layer-01);
+  border-radius: 0; border: 1px solid var(--cds-border-subtle-01);
+  overflow: hidden; transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+.fnode:hover { border-color: var(--cds-border-strong-01); }
+.fnode.sel { border-color: var(--cds-border-interactive); box-shadow: 0 0 0 1px var(--cds-border-interactive); }
+.fnode.dim { opacity: .5; }
+.fnode-h {
+  display: flex; align-items: center; gap: 7px; padding: 7px 11px;
+  color: #fff; font-size: 12.5px; font-weight: 600;
+}
+.fnode-h .no { margin-left: auto; font-size: 10.5px; opacity: .8; font-variant-numeric: tabular-nums; }
+.fnode-b { padding: 9px 11px; display: flex; flex-direction: column; gap: 4px; }
+.fnode-kv { display: flex; gap: 8px; font-size: 10.5px; line-height: 1.5; }
+.fnode-kv .k { color: var(--cds-text-placeholder); flex: none; min-width: 52px; }
+.fnode-kv .v { color: var(--cds-text-secondary); font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; overflow: hidden;
+               text-overflow: ellipsis; white-space: nowrap; }
+.fnode-empty { font-size: 10.5px; color: var(--cds-text-placeholder); font-style: italic; }
+.fnode-run { display: flex; align-items: center; gap: 6px; padding: 6px 11px;
+             border-top: 1px solid var(--cds-border-subtle-01); font-size: 10.5px; }
+
+.fhandle { position: absolute; width: 11px; height: 11px; border-radius: 0;
+           background: var(--cds-border-strong-01); border: 2px solid var(--cds-layer-01); left: 50%;
+           transform: translateX(-50%); z-index: 3; }
+.fhandle.top { top: -6px; }
+.fhandle.bot { bottom: -6px; }
+
+.fedge-tag { position: absolute; transform: translate(-50%, -50%); z-index: 2;
+             background: var(--cds-layer-01); border: 1px solid var(--cds-border-subtle-01); border-radius: 0;
+             padding: 1px 9px; font-size: 10px; color: var(--cds-text-placeholder); white-space: nowrap; }
+.fedge-tag.warn { color: var(--cds-support-warning); border-color: color-mix(in srgb, var(--cds-support-warning) 35%, transparent); }
+
+.fpal { width: 208px; flex: none; border-right: 1px solid var(--cds-border-subtle-01); background: var(--cds-layer-01);
+        padding: 12px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.fpal h4 { margin: 4px 2px 2px; font-size: 10px; font-weight: 600; letter-spacing: .09em;
+           text-transform: uppercase; color: var(--cds-text-placeholder); }
+.fpal button { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
+               padding: 8px 10px; border-radius: 0; border: 1px solid var(--cds-border-subtle-01);
+               background: var(--cds-layer-01); cursor: pointer; font-size: 12px; color: var(--cds-text-primary);
+               transition: border-color .12s ease, background .12s ease; }
+.fpal button:hover { border-color: var(--cds-border-interactive); background: var(--cds-highlight); }
+.fpal .sw { width: 22px; height: 22px; border-radius: 0; flex: none; display: grid;
+            place-items: center; color: #fff; }
+
+.flow-zoom { position: sticky; bottom: 10px; float: right; margin-right: 10px; z-index: 4;
+             display: flex; gap: 2px; padding: 3px; border-radius: 0;
+             background: var(--cds-layer-01); border: 1px solid var(--cds-border-subtle-01);  }
+
+.sqlpane { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+
+.sqlbox-fill { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.sqlbox-fill > div { height: 100%; }
+
+/* ---------------------------------------------------------------------------
+   Documents — paginated page rendering (editor preview, preview page, print/PDF)
+   --------------------------------------------------------------------------- */
+.doc-pages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px 0; color: #000; }
+.doc-measure { position: absolute; left: -100000px; top: 0; visibility: hidden; pointer-events: none; color: #000; }
+.doc-page { position: relative; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); overflow: hidden; flex: none; line-height: 1.4; }
+.doc-content { overflow: visible; }
+.doc-running { position: absolute; font-size: 8.5pt; color: #444; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-h { font-weight: 600; line-height: 1.25; margin: 0; padding-top: 1mm; }
+.doc-p { margin: 0 0 2mm; }
+.doc-p:last-child { margin-bottom: 0; }
+.doc-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.doc-table td { border: 0.75pt solid #000; padding: 1mm 1.5mm; vertical-align: top; overflow-wrap: anywhere; }
+.doc-table-title { font-weight: 600; margin-bottom: 1.5mm; }
+.doc-caption { font-size: .85em; color: #333; margin-top: 1.5mm; text-align: center; }
+.doc-img-empty { border: 1px dashed #999; padding: 10mm; color: #777; text-align: center; }
+.doc-hr { border: 0; border-top: 0.75pt solid #000; margin: 1mm 0; }
+.doc-toc-row { display: flex; align-items: baseline; gap: 2mm; margin: 0.8mm 0; }
+.doc-toc-dots { flex: 1; border-bottom: 1px dotted #666; transform: translateY(-1mm); }
+.doc-toc-page { min-width: 8mm; text-align: right; }
+.doc-print-root { background: #fff; }
+.doc-print-root .doc-pages { padding: 0; gap: 0; align-items: flex-start; }
+.doc-print-root .doc-page { box-shadow: none; }
+@media print {
+  .doc-pages { padding: 0 !important; gap: 0 !important; zoom: 1 !important; align-items: flex-start !important; }
+  .doc-page { box-shadow: none !important; break-after: page; }
+  .doc-page:last-child { break-after: auto; }
+  .doc-noprint { display: none !important; }
+}
+
+/* Documents — editor */
+
+/* ---- UI shell: never wraps (header) / overlay menu (narrow) ---- */
+
+/* list + detail screens on narrow widths: list full width, detail below only once something is open */
+
+.doc-skel { display: block; height: .9em; background: var(--cds-skeleton-background); }
+@media print { .doc-skel { display: none; } }

@@ -1,0 +1,31 @@
+// Detail layout around the flow line: toolbar · run history rail + flow. Stacks below 1056 (lg).
+@use '@carbon/styles/scss/theme' as theme;
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/type' as type;
+@use '@carbon/styles/scss/breakpoint' as *;
+
+.root { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.bar { display: flex; align-items: center; gap: $spacing-03; flex-wrap: wrap;
+  padding: $spacing-05; border-bottom: 1px solid theme.$border-subtle-01; background: theme.$layer-01; }
+.titles { flex: 1 1 14rem; min-width: 0; }
+.actions { display: flex; align-items: center; gap: 1px; flex-wrap: wrap; }
+.body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;
+  @include breakpoint(lg) { flex-direction: row; } }
+.runs { flex: none; background: theme.$layer-01; border-bottom: 1px solid theme.$border-subtle-01;
+  max-height: 11rem; overflow: auto;
+  @include breakpoint(lg) { width: 15rem; max-height: none; border-bottom: 0; border-right: 1px solid theme.$border-subtle-01; } }
+.runsHead { display: flex; align-items: center; justify-content: space-between; padding: $spacing-04 $spacing-05 $spacing-03; margin: 0; }
+.run { display: grid; grid-template-columns: auto 1fr; gap: 0 $spacing-03; width: 100%; text-align: left;
+  padding: $spacing-03 $spacing-05; border: 0; border-left: 3px solid transparent; background: transparent;
+  cursor: pointer; color: theme.$text-primary;
+  &:hover { background: theme.$layer-hover-01; }
+  &:focus-visible { outline: 2px solid theme.$focus; outline-offset: -2px; }
+  :global(.cds--tag) { margin: 0; } }
+.runOn { background: theme.$layer-selected-01; border-left-color: theme.$border-interactive; }
+.runMeta { grid-column: 1 / -1; @include type.type-style('label-01'); color: theme.$text-secondary; margin-top: $spacing-02; }
+.main { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 22rem; }
+.summary { display: flex; align-items: center; gap: $spacing-04; flex-wrap: wrap; padding: $spacing-03 $spacing-05;
+  border-bottom: 1px solid theme.$border-subtle-01; @include type.type-style('body-compact-01'); color: theme.$text-secondary; }
+.panel { display: flex; flex-direction: column; gap: $spacing-06; }
+.log { @include type.type-style('code-01'); white-space: pre-wrap; word-break: break-word; margin: 0;
+  padding: $spacing-04; background: theme.$layer-02; color: theme.$text-primary; }

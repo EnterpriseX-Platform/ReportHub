@@ -1,0 +1,45 @@
+# Document exporter: renders built-in Documents (frontend /print/:id) to PDF with headless Chromium.
+# The backend calls it via DOC_EXPORTER_URL and passes a signed per-export print token (the
+# backend signs it with DOC_PRINT_KEY; the exporter holds no secret).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportstudio-document-exporter
+  namespace: reportstudio
+  labels: { app: reportstudio-document-exporter }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: reportstudio-document-exporter }
+  template:
+    metadata:
+      labels: { app: reportstudio-document-exporter }
+    spec:
+      containers:
+        - name: document-exporter
+          image: example/reportstudio-document-exporter:placeholder
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3200
+          env:
+            # In-cluster address of the frontend including its base path.
+            - name: PRINT_BASE
+              value: "http://reportstudio-app.reportstudio.svc.cluster.local:3000/reportstudio"
+          readinessProbe:
+            httpGet: { path: /healthz, port: 3200 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { memory: "256Mi", cpu: "100m" }
+            limits:   { memory: "1536Mi", cpu: "1000m" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reportstudio-document-exporter
+  namespace: reportstudio
+spec:
+  selector: { app: reportstudio-document-exporter }
+  ports:
+    - { protocol: TCP, port: 3200, targetPort: 3200 }
+  type: ClusterIP

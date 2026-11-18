@@ -1,0 +1,75 @@
+// Production-line flow (xyflow) styled with Carbon tokens. Layout + state only — the nodes use Carbon Tags/icons.
+@use '@carbon/styles/scss/theme' as theme;
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/type' as type;
+
+.wrap {
+  position: relative; flex: 1 1 auto; min-height: 320px; width: 100%;
+  background: theme.$background;
+  :global(.react-flow__attribution) { display: none; }
+  :global(.react-flow__controls) {
+    box-shadow: none; border: 1px solid theme.$border-subtle-01; background: theme.$layer-01;
+    margin: $spacing-05;
+  }
+  :global(.react-flow__controls-button) {
+    background: theme.$layer-01; border-bottom: 1px solid theme.$border-subtle-01; color: theme.$icon-primary;
+    width: 2rem; height: 2rem; padding: $spacing-03;
+    svg { fill: theme.$icon-primary; max-width: 14px; max-height: 14px; }
+    &:hover { background: theme.$layer-hover-01; }
+    &:focus-visible { outline: 2px solid theme.$focus; outline-offset: -2px; }
+  }
+  :global(.react-flow__handle) { opacity: 0; pointer-events: none; }
+}
+
+.node {
+  width: 14rem; background: theme.$layer-01; border: 1px solid theme.$border-subtle-01;
+  outline: 2px solid transparent; outline-offset: -1px; cursor: pointer;
+  display: flex; flex-direction: column; text-align: left;
+  transition: outline-color 110ms cubic-bezier(0.2, 0, 0.38, 0.9);
+  &:hover { background: theme.$layer-hover-01; }
+  &:focus-visible { outline-color: theme.$focus; }
+}
+.sel { outline-color: theme.$border-interactive; }
+.running { outline-color: theme.$border-interactive; border-color: theme.$border-interactive; }
+.failed { border-color: theme.$support-error; outline-color: theme.$support-error; }
+.skipped { opacity: .62; }
+.success .stripe { background: theme.$support-success; }
+
+.stripe { height: 3px; background: theme.$border-strong-01; }
+.running .stripe { background: theme.$interactive; }
+.failed .stripe { background: theme.$support-error; }
+
+.head { display: flex; align-items: center; gap: $spacing-03; padding: $spacing-04 $spacing-04 $spacing-02; color: theme.$text-secondary;
+  svg { fill: theme.$icon-secondary; flex: none; } }
+.kind { @include type.type-style('label-01'); text-transform: uppercase; letter-spacing: .32px; flex: 1; min-width: 0; }
+.no { @include type.type-style('code-01'); color: theme.$text-placeholder; }
+.title { @include type.type-style('heading-compact-01'); color: theme.$text-primary; padding: 0 $spacing-04;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lines { padding: $spacing-02 $spacing-04 $spacing-03; display: grid; gap: 2px; }
+.line { display: flex; gap: $spacing-03; @include type.type-style('code-01'); min-width: 0;
+  .k { color: theme.$text-helper; flex: none; min-width: 3.5rem; }
+  .v { color: theme.$text-primary; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+.foot { display: flex; align-items: center; gap: $spacing-03; flex-wrap: wrap; padding: $spacing-03 $spacing-04;
+  border-top: 1px solid theme.$border-subtle-01; min-height: 2.5rem;
+  :global(.cds--tag) { margin: 0; } }
+.dur { @include type.type-style('code-01'); color: theme.$text-secondary; margin-left: auto; }
+.err { @include type.type-style('label-01'); color: theme.$text-error; padding: 0 $spacing-04 $spacing-03;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+
+// edges
+.edge { stroke: theme.$border-strong-01; stroke-width: 2; fill: none; }
+.edgeDone { stroke: theme.$support-success; }
+.edgeIdle { stroke: theme.$border-subtle-01; stroke-dasharray: 4 4; }
+.edgeLive { stroke: theme.$border-interactive; }
+.dots {
+  stroke: theme.$interactive; stroke-width: 4; stroke-linecap: round; fill: none;
+  stroke-dasharray: 0 14; animation: flowline-dots 0.9s linear infinite;
+}
+@keyframes flowline-dots { to { stroke-dashoffset: -14; } }
+@media (prefers-reduced-motion: reduce) { .dots { animation: none; } }
+
+.label {
+  position: absolute; pointer-events: none; padding: 0 $spacing-02; background: theme.$background;
+  @include type.type-style('code-01'); color: theme.$text-secondary; white-space: nowrap;
+}
+.labelLive { color: theme.$link-primary; }

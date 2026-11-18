@@ -1,0 +1,8 @@
+// Layout for the Job Chains screen. Group P.
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/breakpoint' as *;
+
+.chains {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: $spacing-05; align-items: start;
+  @include breakpoint(md) { grid-template-columns: 16rem minmax(0, 1fr); }
+}

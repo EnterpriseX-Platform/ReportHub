@@ -1,0 +1,161 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: report-studio-db
+    environment:
+      POSTGRES_DB: reportstudio
+      POSTGRES_USER: reportstudio
+      POSTGRES_PASSWORD: reportstudio
+    ports:
+      # host 5433 → container 5432 (avoids clashing with a local Postgres on 5432)
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reportstudio -d reportstudio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Lightweight DB UI at http://localhost:8081 (optional)
+  adminer:
+    image: adminer:4
+    container_name: report-studio-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Object storage (S3 compatible) for generated report outputs.
+  minio:
+    image: minio/minio
+    container_name: report-studio-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: reportstudio
+      MINIO_ROOT_PASSWORD: reportstudio
+    ports:
+      - "9100:9000"   # S3 API (host 9100 — avoids a local container already on 9000)
+      - "9101:9001"   # web console
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -f http://localhost:9000/minio/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # One-shot job: create the report-outputs bucket (the backend also creates it on
+  # startup via ObjectStorageService @PostConstruct, so this is belt-and-braces).
+  minio-init:
+    image: minio/mc
+    container_name: report-studio-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 reportstudio reportstudio &&
+      mc mb --ignore-existing local/report-outputs &&
+      echo 'bucket report-outputs ready'
+      "
+
+  # Document exporter: renders built-in Documents to PDF by opening the frontend /print/:id page.
+  # Run the frontend somewhere the container can reach and point PRINT_BASE at it
+  # (default: a dev frontend on the host, port 3000). Backend: DOC_EXPORTER_URL=http://localhost:3200.
+  document-exporter:
+    build: ./engines/document-exporter
+    container_name: report-studio-document-exporter
+    ports:
+      - "3200:3200"
+    environment:
+      PRINT_BASE: ${DOC_PRINT_BASE:-http://host.docker.internal:3000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reportstudio -d reportstudio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Lightweight DB UI at http://localhost:8081 (optional)
+  adminer:
+    image: adminer:4
+    container_name: report-studio-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Object storage (S3 compatible) for generated report outputs.
+  minio:
+    image: minio/minio
+    container_name: report-studio-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: reportstudio
+      MINIO_ROOT_PASSWORD: reportstudio
+    ports:
+      - "9100:9000"   # S3 API (host 9100 — avoids a local container already on 9000)
+      - "9101:9001"   # web console
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -f http://localhost:9000/minio/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # One-shot job: create the report-outputs bucket (the backend also creates it on
+  # startup via ObjectStorageService @PostConstruct, so this is belt-and-braces).
+  minio-init:
+    image: minio/mc
+    container_name: report-studio-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 reportstudio reportstudio &&
+      mc mb --ignore-existing local/report-outputs &&
+      echo 'bucket report-outputs ready'
+      "
+
+  # Document exporter: renders built-in Documents to PDF by opening the frontend /print/:id page.
+  # Run the frontend somewhere the container can reach and point PRINT_BASE at it
+  # (default: a dev frontend on the host, port 3000). Backend: DOC_EXPORTER_URL=http://localhost:3200.
+  document-exporter:
+    build: ./engines/document-exporter
+    container_name: report-studio-document-exporter
+    ports:
+      - "3200:3200"
+    environment:
+      PRINT_BASE: ${DOC_PRINT_BASE:-http://host.docker.internal:3000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # external "component" report engine — separate, opt-in (heavy: Aspose + LibreOffice + RabbitMQ + its own DB).
+  # NOT started by default; the core stack stays light. Run with:  docker compose --profile engines up --build
+  # Provide its platform deps via env (RabbitMQ / its own DB / front-end) before it will fully run.
+  component-engine:
+    profiles: ["engines"]
+    build: ./engines/component-engine
+    container_name: report-studio-component-engine
+    ports:
+      - "8090:8080"
+    environment:
+      DB_RABBIT_URL: ${COMP_RABBIT_URL:-}
+      DB_RABBIT_USER: ${COMP_RABBIT_USER:-}
+      DB_RABBIT_PASS: ${COMP_RABBIT_PASS:-}
+      DB_CENTER_URL: ${COMP_CENTER_URL:-}
+      DB_CENTER_USER: ${COMP_CENTER_USER:-}
+      DB_CENTER_PASS: ${COMP_CENTER_PASS:-}
+
+volumes:
+  pgdata:
+  miniodata:

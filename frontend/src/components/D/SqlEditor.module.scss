@@ -1,0 +1,6 @@
+.box { border: 1px solid var(--cds-border-subtle-01); overflow: hidden; background: var(--cds-field-01); }
+.bar { display: flex; align-items: center; gap: var(--cds-spacing-03); flex-wrap: wrap; flex: none;
+  padding: 0 var(--cds-spacing-02); min-height: 2.5rem; background: var(--cds-layer-01); border-bottom: 1px solid var(--cds-border-subtle-01); }
+.right { margin-left: auto; display: flex; align-items: center; gap: var(--cds-spacing-03); }
+.var { font-family: var(--cds-code-01-font-family, "IBM Plex Mono", monospace); cursor: pointer; margin: 0; }
+.placeholder { display: flex; align-items: center; justify-content: center; border: 1px solid var(--cds-border-subtle-01); background: var(--cds-layer-01); color: var(--cds-text-secondary); }

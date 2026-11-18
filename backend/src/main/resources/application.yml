@@ -1,0 +1,176 @@
+server:
+  port: 8080
+  # Graceful shutdown — let in-flight renders finish instead of being cut off mid-way
+  # (pairs with terminationGracePeriodSeconds on the k8s side).
+  shutdown: graceful
+  error:
+    include-message: always    # surface BadRequestException reasons to the UI toasts
+  servlet:
+    # Local dev = /api · SIT/prod sets CONTEXT_PATH=/report-studio/api (served under the app basename)
+    context-path: ${CONTEXT_PATH:/api}
+
+spring:
+  mvc:
+    async:
+      # Tomcat's default async timeout is 30s and it does NOT reset while a response is actively
+      # being written, so a large table export dies mid-transfer on a slow link and hands the user
+      # a truncated file. The download is a plain byte copy — time it by the slowest link we expect
+      # to serve, not by how long a request "should" take.
+      request-timeout: 600000
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 30MB
+  application:
+    name: report-studio
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/reportstudio}
+    username: ${DB_USER:reportstudio}
+    password: ${DB_PASSWORD:reportstudio}
+    hikari:
+      maximum-pool-size: 10
+      pool-name: report-studio-pool
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  lifecycle:
+    # Maximum time to wait for in-flight jobs when the pod is asked to stop.
+    #
+    # Must always exceed APP_RENDER_JOB_TIMEOUT_MINUTES. A shorter value (e.g. 10m) cuts long
+    # reports off mid-render with "Worker restarted while this job was rendering" — exactly the
+    # symptom graceful shutdown is meant to prevent.
+    timeout-per-shutdown-phase: ${APP_SHUTDOWN_TIMEOUT:70m}
+  task:
+    scheduling:
+      pool:
+        # The render-queue poller shares the scheduler with the warehouse / check / report timers;
+        # more than one thread keeps a slow timer tick from delaying job pickup.
+        size: ${APP_SCHEDULER_THREADS:4}
+
+# Object storage (MinIO, S3 compatible) for report outputs.
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9100}
+  access-key: ${MINIO_ACCESS_KEY:reportstudio}
+  secret-key: ${MINIO_SECRET_KEY:reportstudio}
+  bucket: ${MINIO_BUCKET:report-outputs}
+
+# CORS origins for the Next.js frontend (comma-separated, matched as patterns).
+# Default "*" allows any origin — safe here because the API authenticates with Bearer
+# tokens (no cookies), and it lets the app work behind any host/IP (e.g. a NodePort test link).
+app:
+  # Absolute API base used in share links (e.g. https://host/reportstudio/api). Blank = derived from
+  # the incoming request's scheme/host/context path.
+  public-base-url: ${APP_PUBLIC_BASE_URL:}
+  # Sign-in: "local" = built-in users (default) · "iam" = users, tenants and permissions from the IAM service.
+  # The edge-token mode (edge.auth.*) works alongside either.
+  auth:
+    mode: ${APP_AUTH_MODE:local}
+  iam:
+    base-url: ${IAM_BASE_URL:}                      # default; Integrations → Identity overrides
+    cache-ttl-seconds: ${IAM_CACHE_TTL_SECONDS:60}   # how long a token's resolved permissions are reused
+    timeout-ms: ${IAM_TIMEOUT_MS:5000}
+    auto-provision-tenant: ${IAM_AUTO_PROVISION_TENANT:true}  # first login of an unknown IAM tenant creates it
+    # IAM role codes / usernames (comma-separated) treated as ReportHub admins in IAM mode
+    # in addition to the IAM's own admin flag.
+    admin-roles: ${IAM_ADMIN_ROLES:}
+    admin-users: ${IAM_ADMIN_USERS:}
+  # Built-in Documents: the bundled exporter (engines/document-exporter) renders the frontend's
+  # /print/{id} page to PDF. The print page reads the document via /public/documents/{id}/print
+  # with a short-lived token the backend signs with this key per export (document id + tenant/project
+  # + requesting user). Only the backend needs the key.
+  documents:
+    exporter-url: ${DOC_EXPORTER_URL:http://localhost:3200}
+    print-key: ${DOC_PRINT_KEY:change-me-print-key}
+    print-token-ttl-seconds: ${DOC_PRINT_TOKEN_TTL_SECONDS:1800}
+  # The renderer can be switched off to separate it from the API pod:
+  #   reportstudio-api    -> APP_WORKER_ENABLED=false (HTTP only, safe to deploy often)
+  #   reportstudio-worker -> default true (consumes the queue only)
+  # Defaults to true so deployments without the env var behave exactly as before.
+  worker:
+    enabled: ${APP_WORKER_ENABLED:true}
+  # Render queue = the Postgres `job` table (no external broker). Only worker-enabled pods poll it.
+  queue:
+    poll-ms: ${APP_QUEUE_POLL_MS:1000}            # how often a worker claims queued jobs
+    heartbeat-ms: ${APP_QUEUE_HEARTBEAT_MS:15000}  # how often a worker refreshes its running jobs
+    stale-after-ms: ${APP_QUEUE_STALE_AFTER_MS:120000}  # running job with an older heartbeat = orphaned
+    sweep-ms: ${APP_QUEUE_SWEEP_MS:60000}          # how often orphaned running jobs are failed
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  jwt:
+    secret: ${JWT_SECRET:change-me-report-studio-dev-secret-please-rotate-32B+}
+    ttlMinutes: ${JWT_TTL_MINUTES:120}
+  # AES key for secrets at rest (remote-engine authToken). Set ENCRYPTION_KEY in prod.
+  encryption:
+    key: ${ENCRYPTION_KEY:change-me-report-studio-dev-encryption-key}
+  # Third-party engine JARs (ServiceLoader). Disable to refuse loading external code.
+  plugins:
+    enabled: ${PLUGINS_ENABLED:true}
+  report:
+    office-name: ${REPORT_OFFICE_NAME:Report Studio}
+    generated-at-pattern: ${REPORT_TS_PATTERN:dd/MM/yyyy HH:mm}
+    generated-at-locale: ${REPORT_TS_LOCALE:en}
+
+# EDGE AUTH — OFF unless configured. When a gateway auth proxy (e.g. oauth2-proxy) fronts
+# the API path it injects the caller's verified OIDC access token as X-Forwarded-Access-Token;
+# setting jwk-set-uri activates EdgeBearerAuthFilter, which JWKS-verifies that token so an embedded
+# rs-export.js button in another host app runs reports AS THE REAL USER (job.requestedBy) with
+# no service account. The app's own /auth/login + rs.token path is untouched.
+#
+# Supply via env (relaxed binding): EDGE_AUTH_JWK_SET_URI / EDGE_AUTH_ISSUER_URI /
+# EDGE_AUTH_ACCEPTED_AZP / EDGE_AUTH_GRANTED_ROLE / EDGE_AUTH_ROLES_CLAIM. Intentionally NOT declared with an empty default:
+# @ConditionalOnProperty counts a present-but-empty value as set and would build a decoder with a
+# blank JWKS URI at boot. Absent property = feature off.
+#
+# edge:
+#   auth:
+#     jwk-set-uri:  https://sso.example.com/realms/portal/protocol/openid-connect/certs
+#     issuer-uri:   https://sso.example.com/realms/portal         # must equal the token's `iss`
+#     accepted-azp: portal-gateway                                # comma-separated client ids
+#     granted-role: USER                                          # runs+reads only, never ADMIN
+#     roles-claim:  roles                                         # token claim holding role codes (array)
+#     # Second path for the oauth2-proxy to front, rewritten onto server.servlet.context-path by
+#     # EdgeApiAliasConfig. Needed because oauth2-proxy's --upstream forwards the path verbatim, and
+#     # fronting the real /reportstudio/api would 302 the admin UI (which uses its own rs.token) to
+#     # Keycloak. Unset = no alias. EDGE_AUTH_EDGE_API_ALIAS=/reportstudio/edge-api
+#     edge-api-alias: /reportstudio/edge-api
+
+# API-ENGINE SERVICE TOKEN — OFF unless configured. Lets a forwardEdgeToken report render
+# from the admin Run Task screen, where the caller holds only rs.token and has no Keycloak token to
+# forward: ApiReportEngine falls back to a service-account token minted here via the OAuth2 password
+# grant (cached until just before expiry). An edge run (rs-export button) still forwards the real
+# user's token and never touches this. Enabled only when url + client-id + username + password are
+# all set. Supply via env: APP_ENGINE_API_SERVICE_TOKEN_TOKEN_URL / _CLIENT_ID / _CLIENT_SECRET /
+# _USERNAME / _PASSWORD — put username+password in a k8s Secret, never in the manifest.
+#
+# app:
+#   engine:
+#     api:
+#       service-token:
+#         token-url:     https://sso.example.com/realms/portal/protocol/openid-connect/token  # PUBLIC url so `iss` matches the proxy
+#         client-id:     rs-service        # a client with Direct Access Grants; its token needs an `aud` the proxy accepts (Audience mapper)
+#         client-secret: ""                # blank for a public client
+#         username:      ${SVC_USERNAME}   # the service user
+#         password:      ${SVC_PASSWORD}   # from a Secret
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    io.reporthub.reportstudio: INFO
+    io.reporthub.reportstudio.render: INFO
+    net.sf.jasperreports: WARN   # Jasper is chatty at INFO; keep it quiet

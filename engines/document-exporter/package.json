@@ -1,0 +1,14 @@
+{
+  "name": "reporthub-document-exporter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Renders ReportHub documents (the frontend /print/:id page) to PDF with headless Chromium.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "playwright": "1.60.0"
+  }
+}

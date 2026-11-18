@@ -1,0 +1,5 @@
+-- Demo/sample catalog data is intentionally omitted from the public release.
+-- The schema (report_category, datasource, report, report_version) is created in V1.
+-- Seed your own categories, datasources and reports via the app UI, an admin API,
+-- or your own Flyway migration. This file is kept as a no-op so the migration
+-- version sequence stays stable.

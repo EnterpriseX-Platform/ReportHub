@@ -1,0 +1,345 @@
+// IBM Carbon (real library) — global entry. Imported once from app/layout.tsx.
+//
+// Fonts: IBM Plex is loaded by next/font in layout.tsx (self-hosted, no CDN), so Carbon's own
+// @font-face output is turned off and Carbon's font stacks are pointed at the next/font variables.
+// The type module must be configured before anything else loads it.
+@use 'sass:string';
+@use '@carbon/styles/scss/config' with (
+  $css--font-face: false,
+  $prefix: 'cds'
+);
+@use '@carbon/type/scss/font-family' with (
+  $font-families: (
+    'mono': string.unquote("var(--font-plex-mono), 'IBM Plex Mono', Menlo, Courier, monospace"),
+    'sans': string.unquote("var(--font-plex), var(--font-plex-thai), 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif"),
+    'sans-condensed': string.unquote("var(--font-plex), 'IBM Plex Sans', sans-serif"),
+    'sans-arabic': string.unquote("var(--font-plex), sans-serif"),
+    'sans-devanagari': string.unquote("var(--font-plex), sans-serif"),
+    'sans-hebrew': string.unquote("var(--font-plex), sans-serif"),
+    'sans-jp': string.unquote("var(--font-plex), sans-serif"),
+    'sans-kr': string.unquote("var(--font-plex), sans-serif"),
+    'sans-thai-looped': string.unquote("var(--font-plex-thai), sans-serif"),
+    'sans-thai': string.unquote("var(--font-plex-thai), sans-serif"),
+    'serif': string.unquote("'IBM Plex Serif', serif"),
+  )
+);
+@use '@carbon/react';
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/breakpoint' as *;
+@use '@carbon/react/scss/type' as type;
+@use '@carbon/type/scss/classes' as type-classes;
+
+// White theme is the app default (:root). Layer surfaces inside cards/panels use Carbon's
+// <Layer> component (layer-01/02/03), which gives the g10-style grey fields on white.
+:root {
+  @include theme.theme(themes.$white);
+}
+
+// Optional dark skin: <html data-theme="dark"> switches every Carbon token to G100.
+:root[data-theme='dark'] {
+  @include theme.theme(themes.$g100);
+}
+
+// Carbon type utility classes (.cds--type-heading-03 …) — not emitted by the component bundle.
+@include type-classes.type-classes;
+
+// The UI shell header is the dark (G100) zone, as in Carbon's product shells; the side nav
+// (rendered inside <Header>) is reset to the page theme.
+.cds--header,
+.cds--header-panel {
+  @include theme.theme(themes.$g100);
+}
+.cds--side-nav { @include theme.theme(themes.$white); }
+:root[data-theme='dark'] .cds--side-nav { @include theme.theme(themes.$g100); }
+
+// ---------------------------------------------------------------------------
+// App layer on top of Carbon: only what Carbon does not ship (layout glue).
+// Uses Carbon tokens (theme.$…) so it follows White / G100 automatically.
+// ---------------------------------------------------------------------------
+
+body { background: theme.$background; }
+.rh-dim { color: theme.$text-secondary; }
+
+// Shell content: Carbon <Content> already offsets for the side nav; we set the rail offset and padding.
+.rh-content {
+  // Header offset as padding, not Carbon's margin-top: a top margin collapses through <body> and
+  // makes every page 3rem taller than the viewport.
+  min-height: 100vh;
+  padding: calc(3rem + #{$spacing-07}) $spacing-07 $spacing-07;
+  background: theme.$background;
+  @include breakpoint(lg) { margin-left: 16rem; }
+  @include breakpoint-down(md) { padding: calc(3rem + #{$spacing-05}) $spacing-05 $spacing-05; }
+  &.rh-content--rail { @include breakpoint(lg) { margin-left: 3rem; } }
+  transition: margin-left 110ms cubic-bezier(0.2, 0, 1, 0.9);
+}
+.cds--header ~ .cds--content.rh-content { margin-top: 0; }
+.rh-content.rh-embedded { min-height: 100vh; padding: $spacing-05; }
+.rh-breadcrumb { margin-bottom: $spacing-03; }
+
+.rh-page-header {
+  display: flex; align-items: flex-start; gap: $spacing-05; flex-wrap: wrap; margin-bottom: $spacing-06;
+  .rh-page-header__title { margin: 0; }
+  p { margin-top: $spacing-02; }
+  .rh-page-header__actions { margin-left: auto; display: flex; gap: 1px; align-items: center; flex-wrap: wrap; }
+}
+
+// Side nav items: label + count tag on one line
+.rh-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cds--side-nav__link:has(.rh-nav-badge) .cds--side-nav__link-text { display: flex; align-items: center; gap: $spacing-03; width: 100%; }
+.rh-nav-badge { margin: 0; flex: none; }
+
+// Header panels (search / notifications / user)
+.rh-hpanel.cds--header-panel--expanded { width: 20rem; }
+.rh-hpanel-pad { padding: $spacing-05; color: theme.$text-primary; }
+.rh-switcher-label { list-style: none; padding: $spacing-03 $spacing-05; color: theme.$text-secondary; }
+.rh-search-hits .cds--switcher__item-link { display: flex; align-items: center; gap: $spacing-03; }
+.rh-search-hits .rh-dim { margin-left: auto; @include type.type-style('label-01'); }
+
+// Toast stack, bottom-right
+.rh-toasts {
+  position: fixed; right: $spacing-05; bottom: $spacing-05; z-index: 9000;
+  display: flex; flex-direction: column; gap: $spacing-03; pointer-events: none;
+  > * { pointer-events: auto; margin: 0; }
+}
+
+// Side panel (Carbon side-panel pattern from core pieces)
+.rh-sidepanel-overlay {
+  position: fixed; inset: 3rem 0 0 0; z-index: 8000; background: theme.$overlay;
+  display: flex; justify-content: flex-end;
+}
+.rh-sidepanel {
+  max-width: 100%; height: 100%; display: flex; flex-direction: column;
+  background: theme.$layer-01; color: theme.$text-primary; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  animation: rh-slide-in 240ms cubic-bezier(0, 0, 0.3, 1);
+}
+.rh-sidepanel__head { display: flex; align-items: flex-start; gap: $spacing-03; padding: $spacing-05 $spacing-03 $spacing-05 $spacing-05; border-bottom: 1px solid theme.$border-subtle-01; }
+.rh-sidepanel__title { margin: 0; overflow-wrap: anywhere; }
+.rh-sidepanel__body { flex: 1; overflow-y: auto; padding: $spacing-05; }
+.rh-sidepanel__foot { flex: none; border-top: 1px solid theme.$border-subtle-01; }
+@keyframes rh-slide-in { from { transform: translateX(100%); } to { transform: none; } }
+
+// Dropdown option with a second line
+.rh-opt { display: flex; flex-direction: column; min-width: 0; }
+.rh-opt__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rh-opt__sub { @include type.type-style('label-01'); color: theme.$text-secondary; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+// DataList helper
+.rh-datalist .rh-row-click { cursor: pointer; }
+.rh-datalist .rh-td-end, .rh-datalist .rh-th-end { text-align: right; }
+.rh-datalist .rh-th-end .cds--table-header-label { text-align: right; }
+// Right-aligned sortable header: Carbon puts the sort arrow after the label inside a full-width
+// button; reverse the flex row so the label sits flush right over the numbers (arrow on its left).
+.rh-datalist th.rh-th-end .cds--table-sort { text-align: right; padding-inline-end: $spacing-05; }
+.rh-datalist th.rh-th-end .cds--table-sort__flex { flex-direction: row-reverse; justify-content: flex-start; }
+.rh-datalist th.rh-th-end .cds--table-sort__flex .cds--table-header-label { flex: 1 1 auto; }
+.rh-datalist .rh-row-actions { width: 1%; white-space: nowrap; text-align: right; }
+.rh-datalist .rh-empty-cell { text-align: center; color: theme.$text-secondary; padding: $spacing-07 0; }
+
+// Metric tile
+.rh-metric { min-height: 7rem; display: flex; flex-direction: column; justify-content: space-between; }
+.rh-metric__head { display: flex; align-items: center; justify-content: space-between; gap: $spacing-03; color: theme.$text-secondary; }
+.rh-metric__val { margin-top: $spacing-05; }
+.rh-metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px;
+  @include breakpoint-down(lg) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include breakpoint-down(md) { grid-template-columns: minmax(0, 1fr); }
+}
+.rh-field-error { display: block; overflow: visible; max-height: none; color: theme.$text-error; }
+
+// Login
+.rh-login { min-height: 100vh; display: grid; place-items: center; padding: $spacing-05; background: theme.$background; }
+.rh-login__col { width: 100%; max-width: 26rem; }
+.rh-login__brand { display: flex; align-items: center; gap: $spacing-04; margin-bottom: $spacing-06; color: theme.$text-primary; }
+.rh-login__mark { width: 2rem; height: 2rem; display: grid; place-items: center; background: theme.$interactive; color: theme.$text-on-color; }
+.rh-login__tile { padding: $spacing-07; }
+.rh-login__submit { width: 100%; max-width: none; }
+
+// Overview
+.rh-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rh-overview-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: $spacing-05;
+  @include breakpoint-down(lg) { grid-template-columns: minmax(0, 1fr); }
+}
+.rh-coverage { display: flex; align-items: center; gap: $spacing-06; flex-wrap: wrap; }
+.rh-livequeue { display: flex; flex-direction: column; }
+.rh-tile-head { display: flex; align-items: center; gap: $spacing-03; margin-bottom: $spacing-03; }
+.rh-joblist { list-style: none; margin: 0 0 $spacing-03; padding: 0; flex: 1;
+  li { display: flex; align-items: center; gap: $spacing-04; padding: $spacing-03 0; border-bottom: 1px solid theme.$border-subtle-01; }
+}
+
+// Forms / panels
+.rh-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-06 $spacing-05;
+  > .rh-span-2 { grid-column: 1 / -1; }
+  @include breakpoint-down(md) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.rh-ministats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; }
+.rh-foot-set { width: 100%; > .cds--btn { flex: 1 1 50%; max-width: none; } }
+.rh-slist { margin-bottom: 0; }
+
+// Two-column admin layout: Carbon TabListVertical (horizontal contained tabs below md) + the selected panel
+.rh-split { display: grid; grid-template-columns: 16rem minmax(0, 1fr); gap: $spacing-06; align-items: start;
+  @include breakpoint-down(md) { grid-template-columns: minmax(0, 1fr); gap: $spacing-05; }
+}
+.rh-split > .cds--tabs--vertical { grid-column: auto; position: sticky; top: calc(3rem + #{$spacing-05}); }
+.rh-split > .cds--tabs:not(.cds--tabs--vertical) { min-width: 0; }
+.rh-section-head { display: flex; align-items: center; gap: $spacing-05; flex-wrap: wrap; margin-bottom: $spacing-05;
+  h2, h3 { margin: 0; }
+  .rh-section-head__actions { margin-left: auto; display: flex; gap: 1px; flex-wrap: wrap; }
+}
+.rh-stack-gap { display: flex; flex-direction: column; gap: $spacing-06; }
+.rh-tile-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px;
+  @include breakpoint-down(md) { grid-template-columns: minmax(0, 1fr); }
+}
+.rh-metric-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rh-cell-sub { @include type.type-style('label-01'); color: theme.$text-secondary; margin-top: $spacing-01; overflow-wrap: anywhere; }
+.rh-thumb { width: 2rem; height: 2rem; object-fit: contain; background: theme.$layer-02; border: 1px solid theme.$border-subtle-01; flex: none; }
+.rh-inline { display: inline-flex; align-items: center; gap: $spacing-03; }
+.rh-select-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-03;
+  @include breakpoint-down(md) { grid-template-columns: minmax(0, 1fr); }
+  .cds--tile { min-height: 0; }
+}
+
+// ---------------------------------------------------------------------------
+// Full-height screens. A page puts `.rh-fill` on its work area; the shell content then becomes a
+// viewport-tall flex column (header 48px + its own padding + page header are measured by layout,
+// not hard-coded), so list + detail screens never scroll the page — their panes scroll instead.
+// ---------------------------------------------------------------------------
+@include breakpoint(lg) {
+  .rh-content:has(.rh-fill) { height: 100vh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .rh-content:has(.rh-fill) :has(.rh-fill) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  // everything beside the fill chain (breadcrumb, page header, toolbars) keeps its natural height
+  .rh-content:has(.rh-fill) :is(.rh-content, :has(.rh-fill)) > :not(.rh-fill):not(:has(.rh-fill)) { flex: none; }
+  .rh-content .rh-fill { flex: 1 1 auto; min-height: 0; }
+}
+
+// List rail + work area (Data Pipeline, Checks, Scheduled SQL, Dashboards, Datasets, Tables, Ad-hoc Report)
+.rh-ops {
+  display: grid; grid-template-columns: 16rem minmax(0, 1fr); gap: $spacing-05; align-items: stretch;
+  > * { min-width: 0; min-height: 0; }
+  &.rh-ops--rail-off { grid-template-columns: 3rem minmax(0, 1fr); }
+}
+// zero-specificity defaults so a screen's own module styles always win
+:where(.rh-ops.rh-fill) > :where(:not(.rh-ops__nav)) { display: flex; flex-direction: column; overflow: auto; }
+.rh-ops__nav {
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  background: theme.$layer-01; border-right: 1px solid theme.$border-subtle-01;
+  &[hidden] { display: none; }
+}
+.rh-ops__nav--collapsed { align-items: center; padding-top: $spacing-03; overflow: visible; }
+.rh-ops__list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+@include breakpoint-down(lg) {
+  .rh-ops { grid-template-columns: minmax(0, 1fr); }
+  .rh-ops.rh-ops--rail-off { grid-template-columns: minmax(0, 1fr); }
+  .rh-ops__nav--collapsed { align-items: flex-start; padding: 0; }
+  .rh-ops > .rh-ops__nav:not(.rh-ops__nav--collapsed) { max-height: 46vh; }
+  .rh-ops--stack:not(.rh-ops--detail) > :not(.rh-ops__nav) { display: none; }
+  .rh-ops--stack.rh-ops--detail > :not(.rh-ops__nav) { min-height: 60vh; }
+}
+
+// Drag-and-drop folder tree rows (Datasets, Tables, Ad-hoc Report) — same metrics as Carbon TreeView
+.rh-nt-tools { display: flex; align-items: center; gap: 1px; flex-wrap: wrap; padding: $spacing-02 $spacing-03; border-bottom: 1px solid theme.$border-subtle-01; }
+.rh-nt-root { display: flex; flex-direction: column; border: 1px dashed transparent; }
+.rh-nt-root.rh-nt--drop { border-color: theme.$border-interactive; background: theme.$highlight; }
+.rh-nt-hint { padding: $spacing-04; @include type.type-style('label-01'); color: theme.$link-primary; text-align: center; }
+.rh-nt-dropline { height: 2px; background: theme.$border-interactive; margin-right: $spacing-03; }
+.rh-nt-item, .rh-nt-fold {
+  display: flex; align-items: center; gap: $spacing-03; width: 100%; min-height: 2rem;
+  padding: 0 $spacing-03; border: 0; background: none; cursor: pointer; text-align: left;
+  @include type.type-style('body-compact-01'); color: theme.$text-secondary;
+  &:hover { background: theme.$layer-hover-01; color: theme.$text-primary; }
+  &:focus-visible { outline: 2px solid theme.$focus; outline-offset: -2px; }
+}
+.rh-nt-item.rh-nt--on { background: theme.$layer-selected-01; color: theme.$text-primary; box-shadow: inset 3px 0 0 theme.$border-interactive; }
+.rh-nt-fold.rh-nt--drop { background: theme.$highlight; outline: 1px dashed theme.$border-interactive; outline-offset: -1px; }
+.rh-nt--dragging { opacity: 0.4; }
+.rh-nt-fold.rh-nt--editing, .rh-nt-item.rh-nt--editing { cursor: default; }
+.rh-nt-input { flex: 1; min-width: 0; }
+.rh-nt-caret { flex: none; color: theme.$icon-secondary; transform: rotate(90deg); transition: transform 110ms; }
+.rh-nt--shut .rh-nt-caret { transform: none; }
+.rh-nt-ico, .rh-nt-fico { flex: none; color: theme.$icon-secondary; }
+.rh-nt--on .rh-nt-ico { color: theme.$icon-primary; }
+.rh-nt-name, .rh-nt-text, .rh-nt-tname-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rh-nt-tname { display: flex; align-items: center; gap: $spacing-02; font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; }
+.rh-nt-count, .rh-nt-n { margin-left: auto; flex: none; @include type.type-style('label-01'); color: theme.$text-secondary; font-variant-numeric: tabular-nums; }
+.rh-nt-tag { flex: none; max-width: 4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 $spacing-02; background: theme.$layer-accent-01; @include type.type-style('label-01'); color: theme.$text-secondary; }
+.rh-nt-mark { width: 8px; height: 8px; flex: none; }
+.rh-nt-pub { flex: none; color: theme.$icon-secondary; }
+.rh-nt-grip { flex: none; color: theme.$icon-secondary; opacity: 0; cursor: grab; }
+.rh-nt-item:hover .rh-nt-grip, .rh-nt-fold:hover .rh-nt-grip { opacity: 1; }
+.rh-nt-acts { display: inline-flex; align-items: center; gap: 1px; flex: none; margin-left: auto; }
+.rh-nt-fold .rh-nt-acts, .rh-nt-cog { opacity: 0; }
+.rh-nt-fold:hover .rh-nt-acts, .rh-nt-fold:focus-within .rh-nt-acts,
+.rh-nt-item:hover .rh-nt-cog, .rh-nt-item:focus-within .rh-nt-cog, .rh-nt--on .rh-nt-cog { opacity: 1; }
+@media (hover: none) { .rh-nt-cog, .rh-nt-fold .rh-nt-acts { opacity: 1; } }
+
+// Shared fixes requested by the screen migrations
+.rh-mono input, input.rh-mono, .rh-mono textarea, textarea.rh-mono { font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; }
+.cds--stack-vertical { grid-template-columns: minmax(0, 1fr); }
+// ContentSwitcher sized to its content instead of stretching to the container
+.rh-switch-fit.cds--content-switcher { width: auto; max-width: 100%; overflow-x: auto; }
+.rh-switch-fit.cds--content-switcher .cds--content-switcher-btn { flex: 1 0 auto; width: auto; }
+.rh-switch-fit.cds--content-switcher .cds--content-switcher__label { overflow: visible; }
+
+// Shared screen layouts
+.rh-dash-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-05;
+  @include breakpoint-down(lg) { grid-template-columns: minmax(0, 1fr); }
+}
+.rh-queue-layout { display: grid; grid-template-columns: minmax(0, 1fr) 17.5rem; gap: $spacing-05; align-items: start;
+  > * { min-width: 0; }
+  @include breakpoint-down(lg) {
+    grid-template-columns: minmax(0, 1fr);
+    > :last-child { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1px; }
+  }
+}
+.rh-access-grid { display: grid; gap: $spacing-03; align-items: center;
+  &.rh-access-grid--acl { grid-template-columns: 10rem minmax(0, 1fr) 7.5rem 2rem; }
+  &.rh-access-grid--rf { grid-template-columns: minmax(0, 1fr) 7.5rem minmax(0, 1.2fr) 6.25rem 9.5rem minmax(0, 1fr) 2rem; }
+  .rh-access-grid__h { color: theme.$text-secondary; }
+}
+
+// Document editor: section tree | block editor | live preview
+.rh-docx-shell {
+  display: grid; grid-template-columns: 15rem minmax(24rem, 1fr) minmax(22rem, 46%);
+  min-height: 30rem; border: 1px solid theme.$border-subtle-01; background: theme.$layer-01;
+  &.rh-docx--no-preview { grid-template-columns: 15rem minmax(0, 1fr); }
+  @include breakpoint-down(lg) { grid-template-columns: minmax(0, 1fr); min-height: 0;
+    &.rh-docx--no-preview { grid-template-columns: minmax(0, 1fr); } }
+}
+.rh-docx-pane { overflow: auto; min-width: 0; min-height: 0; }
+.rh-docx-pane + .rh-docx-pane { border-left: 1px solid theme.$border-subtle-01;
+  @include breakpoint-down(lg) { border-left: 0; border-top: 1px solid theme.$border-subtle-01; } }
+.rh-docx-tree { background: theme.$layer-02; padding: $spacing-03 0; }
+.rh-docx-tree-h { display: flex; align-items: center; padding: $spacing-03 $spacing-04 $spacing-02; @include type.type-style('label-01'); color: theme.$text-secondary;
+  > :last-child { margin-left: auto; } }
+.rh-docx-sec { display: flex; align-items: center; gap: $spacing-03; min-height: 2rem; padding: 0 $spacing-04; cursor: pointer;
+  @include type.type-style('body-compact-01'); color: theme.$text-secondary; border-left: 3px solid transparent;
+  &:hover { background: theme.$layer-hover-02; color: theme.$text-primary; }
+  &.rh-docx--active { background: theme.$layer-selected-02; color: theme.$text-primary; border-left-color: theme.$border-interactive; }
+  &.rh-docx--off { opacity: 0.5; text-decoration: line-through; }
+  .rh-docx-acts { margin-left: auto; display: none; gap: 1px; }
+  &:hover .rh-docx-acts, &:focus-within .rh-docx-acts { display: inline-flex; }
+}
+.rh-docx-body { padding: $spacing-05; }
+.rh-docx-block { border: 1px solid theme.$border-subtle-01; background: theme.$layer-01; margin-bottom: $spacing-04;
+  &.rh-docx--sel { border-color: theme.$border-interactive; box-shadow: inset 3px 0 0 theme.$border-interactive; } }
+.rh-docx-block-h { display: flex; align-items: center; gap: $spacing-03; padding: 0 0 0 $spacing-03; min-height: 2rem; background: theme.$layer-02;
+  @include type.type-style('label-01'); color: theme.$text-secondary; border-bottom: 1px solid theme.$border-subtle-01;
+  .rh-docx-acts { margin-left: auto; display: inline-flex; gap: 1px; } }
+.rh-docx-block-b { padding: $spacing-04; }
+.rh-docx-row { display: flex; gap: $spacing-03; align-items: flex-end; flex-wrap: wrap; margin-top: $spacing-03; }
+.rh-docx-add { display: flex; gap: 1px; flex-wrap: wrap; padding: $spacing-03 0 $spacing-07; }
+.rh-docx-preview { background: theme.$layer-accent-01; }
+.rh-docx-tpl { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.75rem, 1fr)); gap: $spacing-03; }
+.rh-docx-gridbar { display: flex; flex-wrap: wrap; gap: 1px; margin-bottom: $spacing-03; align-items: center; }
+.rh-docx-grid-wrap { overflow: auto; max-height: 26rem; border: 1px solid theme.$border-subtle-01; }
+.rh-docx-grid { border-collapse: collapse; @include type.type-style('body-compact-01');
+  th { background: theme.$layer-02; color: theme.$text-secondary; font-weight: 400; @include type.type-style('label-01'); padding: 2px $spacing-02;
+       border: 1px solid theme.$border-subtle-01; user-select: none; min-width: 1.75rem; position: sticky; top: 0; z-index: 1; }
+  td { border: 1px solid theme.$border-strong-01; padding: 0; min-width: 4.5rem; position: relative; vertical-align: top; }
+  td.rh-docx--hdr { background: theme.$highlight; }
+  td.rh-docx--in-sel { outline: 2px solid theme.$focus; outline-offset: -2px; }
+  td input { width: 100%; border: 0; background: transparent; font: inherit; color: theme.$text-primary; padding: $spacing-02 $spacing-03; outline: none; }
+  td .rh-docx-fx { position: absolute; right: 2px; top: 1px; font-size: 0.5625rem; color: theme.$support-info; pointer-events: none; }
+  tr.rh-docx--bound td { background: theme.$layer-02; color: theme.$text-secondary; padding: $spacing-02 $spacing-03; font-style: italic; }
+}

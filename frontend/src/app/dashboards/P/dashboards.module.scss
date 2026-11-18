@@ -1,0 +1,23 @@
+// Dashboards screen layout. Group P.
+@use '@carbon/styles/scss/theme' as theme;
+@use '@carbon/styles/scss/spacing' as *;
+
+.pane { background: theme.$layer-01; overflow: auto; min-width: 0; display: flex; flex-direction: column; }
+.head { display: flex; align-items: center; gap: $spacing-03; padding: $spacing-04 $spacing-05; border-bottom: 1px solid theme.$border-subtle-01; flex-wrap: wrap; }
+.title { flex: 1 1 10rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.body { padding: $spacing-05; min-width: 0; }
+.filters { display: flex; align-items: center; gap: $spacing-03; flex-wrap: wrap; margin-bottom: $spacing-05; padding: $spacing-03 $spacing-05 !important; min-height: 0 !important; background: theme.$layer-02 !important; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-05;
+  @media (max-width: 66rem) { grid-template-columns: minmax(0, 1fr); } }
+.widget { padding: 0 !important; overflow: hidden; min-width: 0; background: theme.$layer-02 !important; }
+.wHead { display: flex; align-items: center; gap: $spacing-03; padding: $spacing-02 $spacing-03 $spacing-02 $spacing-05; border-bottom: 1px solid theme.$border-subtle-02; }
+.wBody { padding: $spacing-04; }
+.empty { grid-column: 1 / -1; padding: $spacing-09; text-align: center; color: theme.$text-secondary; }
+.form { display: flex; flex-direction: column; gap: $spacing-05; }
+.nameRow { display: grid; grid-template-columns: minmax(0, 1fr) 10rem; gap: $spacing-05; align-items: end;
+  @media (max-width: 42rem) { grid-template-columns: minmax(0, 1fr); } }
+.addRow { display: flex; gap: $spacing-03; align-items: flex-end; flex-wrap: wrap; > :first-child { flex: 1; min-width: 12rem; } }
+.wRow { display: flex; align-items: center; gap: $spacing-03; padding: $spacing-02 $spacing-03 $spacing-02 $spacing-05; border: 1px solid theme.$border-subtle-01; background: theme.$layer-02; }
+.dsFields { display: flex; flex-direction: column; gap: $spacing-03; padding: $spacing-03 $spacing-05; border: 1px solid theme.$border-subtle-01; border-top: 0; }
+.fieldRow { display: flex; gap: $spacing-03; align-items: center; flex-wrap: wrap; }
+.fieldLabel { width: 6rem; flex: none; color: theme.$text-secondary; }

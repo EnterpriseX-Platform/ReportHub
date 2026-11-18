@@ -1,0 +1,26 @@
+@use "@carbon/styles/scss/spacing" as *;
+@use "@carbon/styles/scss/theme";
+
+// Label / value grid of the Scope tab; stacks on phones.
+.kv {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  row-gap: $spacing-05;
+  column-gap: $spacing-05;
+  align-items: start;
+  @media (max-width: 42rem) { grid-template-columns: minmax(0, 1fr); row-gap: $spacing-03; }
+}
+.sql { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: $spacing-03 $spacing-05; align-items: center;
+  @media (max-width: 42rem) { grid-template-columns: minmax(0, 1fr); } }
+.scroll { overflow: auto; }
+.expanded td { background: theme.$layer-02; }
+.gridScroll { flex: 1; min-height: 0; overflow: auto; }
+.gridScroll th { white-space: nowrap; }
+.gridScroll td { white-space: nowrap; max-width: 24rem; overflow: hidden; text-overflow: ellipsis; }
+.null { color: theme.$text-placeholder; font-style: italic; }
+.onRow td { background: theme.$layer-selected-01; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-05;
+  @media (max-width: 42rem) { grid-template-columns: minmax(0, 1fr); } }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: $spacing-05; align-items: start;
+  @media (max-width: 42rem) { grid-template-columns: minmax(0, 1fr); } }
+.snippet { margin-top: $spacing-03; max-width: none; }

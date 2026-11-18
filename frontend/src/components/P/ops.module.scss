@@ -1,0 +1,30 @@
+// Layout glue for the Ops list rail (Carbon Search + TreeView). Group P.
+@use '@carbon/styles/scss/theme' as theme;
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/type';
+
+.head { display: flex; align-items: center; border-bottom: 1px solid theme.$border-subtle-01; }
+.head :global(.cds--search) { flex: 1; min-width: 0; }
+.tools { display: flex; align-items: center; gap: 1px; padding: $spacing-02 $spacing-03; border-bottom: 1px solid theme.$border-subtle-01; flex-wrap: wrap; }
+.tree { flex: 1; min-height: 0; overflow-y: auto; }
+.lab { display: flex; align-items: center; gap: $spacing-03; min-width: 0; width: 100%; }
+.name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.count { flex: none; @include type.type-style('label-01'); color: theme.$text-secondary; }
+.badge { flex: none; @include type.type-style('label-01'); color: theme.$text-secondary; }
+.acts { flex: none; display: flex; opacity: 0; }
+.lab:hover .acts, :global(.cds--tree-node--selected) > :global(.cds--tree-node__label) .acts, .acts:focus-within { opacity: 1; }
+.dot { width: 8px; height: 8px; flex: none; }
+.tick { flex: none; margin: 0; }
+.tick :global(.cds--checkbox-label) { padding-left: 1rem; min-height: 1rem; }
+.note { padding: $spacing-05; text-align: center; @include type.type-style('label-01'); color: theme.$text-secondary; }
+.foot { border-top: 1px solid theme.$border-subtle-01; padding: $spacing-03; }
+.empty { margin: auto; padding: $spacing-09; text-align: center; color: theme.$text-secondary; }
+.emptyTitle { margin-top: $spacing-04; color: theme.$text-primary; }
+// Row layout: Carbon's details span holds [renderIcon slot][label]; the slot's trailing part is moved after the label.
+.tree :global(.cds--tree-node__label__details) { display: flex; align-items: center; gap: $spacing-03; flex: 1; min-width: 0; }
+.tree :global(.cds--tree-node__label__text) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; order: 1; }
+.tree :global(.cds--tree-node__label) { width: 100%; }
+.lead { flex: none; display: inline-flex; align-items: center; order: 0; }
+.trail { flex: none; display: inline-flex; align-items: center; gap: $spacing-02; order: 2; margin-left: auto; }
+.tree :global(.cds--tree-node:hover) > :global(.cds--tree-node__label) .acts,
+.tree :global(.cds--tree-node--selected) > :global(.cds--tree-node__label) .acts { opacity: 1; }

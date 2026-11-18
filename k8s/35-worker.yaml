@@ -1,0 +1,62 @@
+# Render worker, split out of the API pod.
+#
+# Same image as reportstudio-api; only APP_WORKER_ENABLED differs:
+#   reportstudio-api    -> false  serves HTTP only, safe to redeploy often
+#   reportstudio-worker -> true   polls the job queue only
+# The queue is the Postgres `job` table. Workers claim jobs with FOR UPDATE SKIP LOCKED, so each job
+# goes to exactly one worker and replicas can overlap during a rollout without duplicate work.
+#
+# No Service: nothing calls the worker; it polls the database for queued jobs.
+# Deploy pipelines should `kubectl set image deployment/reportstudio-worker ...` alongside the API.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reportstudio-worker
+  labels: { app: reportstudio-worker }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: reportstudio-worker }
+  strategy:
+    # RollingUpdate, not Recreate: with a long grace period, Recreate would leave no consumer
+    # while the old pod drains. Two consumers in one group never double-process a job.
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels: { app: reportstudio-worker }
+    spec:
+      # Let an in-flight render finish before the pod stops. Must exceed the app's job
+      # timeout (APP_RENDER_JOB_TIMEOUT_MINUTES, 65 min) plus time to write output: 4200s = 70 min.
+      terminationGracePeriodSeconds: 4200
+      imagePullSecrets:
+        - name: component-docker
+      containers:
+        - name: reportstudio-worker
+          image: example/reportstudio-api:placeholder
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_WORKER_ENABLED
+              value: "true"
+          envFrom:
+            - secretRef: { name: reportstudio-secret }
+          # Lenient probes: rendering can saturate the CPU and slow the health endpoint.
+          readinessProbe:
+            httpGet: { path: /reportstudio/api/actuator/health, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet: { path: /reportstudio/api/actuator/health, port: 8080 }
+            initialDelaySeconds: 75
+            periodSeconds: 20
+            timeoutSeconds: 8
+            failureThreshold: 5
+          resources:
+            requests: { memory: "1Gi", cpu: "500m" }
+            limits:   { memory: "4Gi", cpu: "2000m" }

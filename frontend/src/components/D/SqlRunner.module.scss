@@ -1,0 +1,36 @@
+// SQL runner layout — Carbon tokens only
+.wrap { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: hidden; }
+.bar { display: flex; align-items: center; gap: var(--cds-spacing-03); flex-wrap: wrap; flex: none;
+  padding: var(--cds-spacing-03) var(--cds-spacing-05); background: var(--cds-layer-01); border-bottom: 1px solid var(--cds-border-subtle-01); }
+.name { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds { width: 250px; flex: none; }
+.grow { flex: 1; }
+.vars { display: flex; flex-wrap: wrap; gap: var(--cds-spacing-05); padding: var(--cds-spacing-03) var(--cds-spacing-05); border-bottom: 1px solid var(--cds-border-subtle-01); background: var(--cds-layer-01); }
+.vars > * { min-width: 160px; }
+.ed { flex: none; min-height: 0; overflow: hidden; }
+.ed > * { border: none !important; }
+.grip { flex: none; height: 8px; cursor: row-resize; display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--cds-border-subtle-01); background: var(--cds-layer-01); }
+.grip span { width: 32px; height: 2px; background: transparent; }
+.grip:hover span, .grip:active span { background: var(--cds-border-strong-01); }
+.res { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+.resHead { display: flex; align-items: center; gap: var(--cds-spacing-03); flex-wrap: wrap; flex: none;
+  padding: var(--cds-spacing-02) var(--cds-spacing-05); min-height: 2.5rem; border-bottom: 1px solid var(--cds-border-subtle-01); }
+.gridWrap { overflow: auto; flex: 1; min-height: 160px; position: relative; }
+.grid {
+  width: max-content !important; min-width: 100%;
+  thead th { position: sticky; top: 0; z-index: 2; }
+  td { white-space: nowrap; max-width: 360px; overflow: hidden; text-overflow: ellipsis; }
+}
+.colNo { position: sticky; left: 0; z-index: 1; width: 1%; min-width: 56px; }
+.grid thead .colNo { z-index: 3; }
+.grid tbody .colNo { background: var(--cds-layer-01); color: var(--cds-text-secondary); }
+.num { text-align: end; font-family: var(--cds-code-01-font-family, "IBM Plex Mono", monospace); font-variant-numeric: tabular-nums; }
+.null { color: var(--cds-text-placeholder); }
+.ghName { display: flex; align-items: center; gap: var(--cds-spacing-02); font-weight: 600; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--cds-spacing-03); padding: var(--cds-spacing-09) var(--cds-spacing-05); }
+.foot { flex: none; border-top: 1px solid var(--cds-border-subtle-01); }
+.histSql { display: block; max-width: 330px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 671px) {
+  .ds { width: 100%; order: 10; }
+  .name { max-width: 160px; }
+}

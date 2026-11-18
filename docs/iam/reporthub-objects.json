@@ -1,0 +1,432 @@
+{
+    "application": {
+        "code": "RH",
+        "name": "ReportHub"
+    },
+    "module": {
+        "code": "RH",
+        "name": "ReportHub"
+    },
+    "actionFlags": {
+        "view": "canView",
+        "execute": "canExport",
+        "create": "canCreate",
+        "delete": "canDelete",
+        "approve": "canApprove",
+        "update": "canEdit"
+    },
+    "objects": [
+        {
+            "code": "RH",
+            "name": "ReportHub",
+            "objectType": "menu",
+            "parentCode": null,
+            "route": null,
+            "actions": [
+                "view"
+            ],
+            "permissionFlags": [
+                "canView"
+            ]
+        },
+        {
+            "code": "RH.OVERVIEW",
+            "name": "Overview",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/",
+            "actions": [
+                "view"
+            ],
+            "permissionFlags": [
+                "canView"
+            ]
+        },
+        {
+            "code": "RH.REPORT",
+            "name": "Report Registry",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/registry",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.REPORT.PARAMETER",
+            "name": "Parameters",
+            "objectType": "page",
+            "parentCode": "RH.REPORT",
+            "route": "/parameters",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete"
+            ]
+        },
+        {
+            "code": "RH.OUTPUT",
+            "name": "Output Files",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/outputs",
+            "actions": [
+                "view",
+                "delete",
+                "execute",
+                "approve"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canDelete",
+                "canExport",
+                "canApprove"
+            ]
+        },
+        {
+            "code": "RH.QUEUE",
+            "name": "Queue Monitor",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/queue",
+            "actions": [
+                "view",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.INTEGRATION",
+            "name": "Integrations",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/integrations",
+            "actions": [
+                "view",
+                "update",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canEdit",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.DATASOURCE",
+            "name": "Database connections",
+            "objectType": "button",
+            "parentCode": "RH.INTEGRATION",
+            "route": "/integrations?category=databases",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.REPOSITORY",
+            "name": "Tables",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/repository",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.REPOSITORY.REGISTRY",
+            "name": "Table registry and folders",
+            "objectType": "button",
+            "parentCode": "RH.REPOSITORY",
+            "route": null,
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete"
+            ]
+        },
+        {
+            "code": "RH.ADHOC",
+            "name": "Ad-hoc Report",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/adhocreport",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.DATASET",
+            "name": "Datasets",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/datasets",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.PIPELINE",
+            "name": "Data Pipeline",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/datapipeline",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.CHAIN",
+            "name": "Job Chains",
+            "objectType": "page",
+            "parentCode": "RH.PIPELINE",
+            "route": "/chains",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.CHECK",
+            "name": "Data Checks",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/checks",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.SCHEDULER",
+            "name": "Scheduled SQL",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/schedulers",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.DASHBOARD",
+            "name": "Dashboards",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/dashboards",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete"
+            ]
+        },
+        {
+            "code": "RH.DOCUMENT",
+            "name": "Documents",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/documents",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.ENGINE",
+            "name": "Report engines",
+            "objectType": "button",
+            "parentCode": "RH.INTEGRATION",
+            "route": "/integrations?category=engines",
+            "actions": [
+                "view",
+                "create",
+                "update",
+                "delete",
+                "execute"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canEdit",
+                "canDelete",
+                "canExport"
+            ]
+        },
+        {
+            "code": "RH.RESOURCE",
+            "name": "Shared resources",
+            "objectType": "button",
+            "parentCode": "RH.SETTINGS",
+            "route": null,
+            "actions": [
+                "view",
+                "create",
+                "delete"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canCreate",
+                "canDelete"
+            ]
+        },
+        {
+            "code": "RH.SETTINGS",
+            "name": "Settings",
+            "objectType": "page",
+            "parentCode": "RH",
+            "route": "/settings",
+            "actions": [
+                "view",
+                "update"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canEdit"
+            ]
+        },
+        {
+            "code": "RH.ACCESS",
+            "name": "Access rules (object ACL and row filters)",
+            "objectType": "button",
+            "parentCode": "RH.SETTINGS",
+            "route": null,
+            "actions": [
+                "view",
+                "update"
+            ],
+            "permissionFlags": [
+                "canView",
+                "canEdit"
+            ]
+        }
+    ]
+}

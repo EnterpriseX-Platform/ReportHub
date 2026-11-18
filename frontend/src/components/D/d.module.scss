@@ -1,0 +1,40 @@
+// Layout glue for group D screens (Datasets, Ad-hoc, Ad-hoc report, Workbench). Carbon tokens only.
+@use '@carbon/styles/scss/theme' as theme;
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/type';
+
+.railHead { display: flex; align-items: center; border-bottom: 1px solid theme.$border-subtle-01; }
+.railHead :global(.cds--search) { flex: 1; min-width: 0; }
+.railTools { display: flex; align-items: center; justify-content: flex-end; padding: $spacing-02 $spacing-03; border-bottom: 1px solid theme.$border-subtle-01; }
+.railFoot { display: flex; align-items: center; gap: $spacing-03; border-top: 1px solid theme.$border-subtle-01; padding: $spacing-02 $spacing-03 $spacing-02 $spacing-05;
+  @include type.type-style('label-01'); color: theme.$text-secondary; margin-top: auto; }
+.main { background: theme.$layer-01; overflow: auto; min-width: 0; }
+.pane { display: flex; flex-direction: column; gap: $spacing-05; padding: $spacing-05; }
+.paneHead { display: flex; align-items: center; gap: $spacing-03; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: $spacing-05; }
+.empty { padding: $spacing-10 $spacing-05; text-align: center; color: theme.$text-secondary; }
+.emptyTitle { margin-top: $spacing-04; color: theme.$text-primary; }
+.result { border: 1px solid theme.$border-subtle-01; overflow: hidden; }
+.resultHead { display: flex; align-items: center; gap: $spacing-03; padding: $spacing-03 $spacing-05; background: theme.$layer-accent-01;
+  @include type.type-style('body-compact-01'); }
+.scroll { overflow: auto; }
+.table { width: 100%; }
+.table td, .table th { white-space: nowrap; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; }
+.labelRow { display: flex; align-items: baseline; gap: $spacing-03; margin-bottom: $spacing-03; }
+.labelRow > :last-child { margin-left: auto; }
+.side2 { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); gap: $spacing-05; align-items: start;
+  @media (max-width: 671px) { grid-template-columns: minmax(0, 1fr); } }
+.sideCol { display: flex; flex-direction: column; gap: 1px; position: sticky; top: 0;
+  @media (max-width: 671px) { position: static; } }
+.mainCol { display: flex; flex-direction: column; gap: $spacing-05; min-width: 0; }
+.cardHead { display: flex; align-items: center; gap: $spacing-03; margin-bottom: $spacing-05; min-height: 2rem; flex-wrap: wrap; }
+.histRow { padding: $spacing-03 0; border-bottom: 1px solid theme.$border-subtle-01; min-width: 0; }
+.selCard { display: flex; align-items: flex-start; gap: $spacing-04; padding: $spacing-04 $spacing-05; border-left: 3px solid theme.$border-interactive; background: theme.$layer-02; }
+.listRow { display: flex; align-items: center; gap: $spacing-04; padding: $spacing-03 $spacing-04; background: theme.$layer-02; }
+.runRow { display: flex; gap: $spacing-03; width: 100%; text-align: left; padding: $spacing-03 $spacing-02; border: 0; background: transparent; cursor: pointer; align-items: flex-start; color: theme.$text-primary;
+  &:hover { background: theme.$layer-hover-01; } }
+.dot { width: 8px; height: 8px; margin-top: 6px; flex: none; }
+.totalRow td { background: theme.$layer-accent-01 !important; font-weight: 600; }
+.cellEmpty { padding: $spacing-07 0; text-align: center; color: theme.$text-secondary; }
